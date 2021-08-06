@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Menu } from "@headlessui/react";
 import SwapForm from "../components/SwapForm";
+import SwapOutputForm from "../components/SwapOutputForm";
 import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
 import { providers, Signer, ethers, BigNumber } from "ethers";
 
@@ -9,13 +10,24 @@ interface Props {}
 export const Swap: React.FC<Props> = () => {
   const [isEthInput, setIsEthInput] = useState(true);
   const [outputAmount, setoutputAmount] = useState<number>();
+  const [isInputReset, setisInputReset] = useState(false);
 
   const changeFormPos = () => {
     setIsEthInput(!isEthInput);
+    setoutputAmount(0);
+    setisInputReset(true);
   };
 
   const calcOutputAmount = (inputAmount: number) => {
-    setoutputAmount(inputAmount * 2);
+    //swapFormのinput valueを再表示
+    setisInputReset(false);
+
+    console.log(inputAmount);
+    if (isNaN(inputAmount)) {
+      setoutputAmount(0);
+    } else {
+      setoutputAmount(inputAmount * 2);
+    }
   };
 
   return (
@@ -32,13 +44,13 @@ export const Swap: React.FC<Props> = () => {
         </div>
         {isEthInput ? (
           <div>
-            <SwapForm isInput={true} isEth={true} calcOutputAmount={calcOutputAmount} />
-            <SwapForm isInput={false} isEth={false} outputAmount={outputAmount} />
+            <SwapForm isEth={true} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
+            <SwapOutputForm isEth={false} outputAmount={outputAmount} />
           </div>
         ) : (
           <div>
-            <SwapForm isInput={true} isEth={false} calcOutputAmount={calcOutputAmount} />
-            <SwapForm isInput={false} isEth={true} outputAmount={outputAmount} />
+            <SwapForm isEth={false} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
+            <SwapOutputForm isEth={true} outputAmount={outputAmount} />
           </div>
         )}
 

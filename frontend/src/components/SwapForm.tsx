@@ -5,12 +5,12 @@ import ethIcon from "../eth_icon.png";
 import bitcoinIcon from "../bitcoin.png";
 import { SignerContext } from "./../hardhat/SymfoniContext";
 import { ethers } from "ethers";
+//import { useGetEthBalance } from "../helper";
 
 interface Props {
-  isInput: Boolean;
   isEth: Boolean;
+  isInputReset: Boolean;
   calcOutputAmount?: (amount: number) => void;
-  outputAmount?: number;
 }
 
 const SwapForm: React.FC<Props> = (props) => {
@@ -31,17 +31,18 @@ const SwapForm: React.FC<Props> = (props) => {
 
   useEffect(() => {
     const doAsync = async () => {
-      if (!signer[0]) return;
+      //const ethBalance = useGetEthBalance();
+
+      if (!signer[0] || !props.isEth) return;
       const ethBalance = await signer[0]!.getBalance();
       const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(3);
 
       //const ethBalance2 = await signer[0]!.getBalance();
-
       setethBalance(ethBalanceFormatted);
       console.log(ethBalanceFormatted);
     };
     doAsync();
-  }, [signer]);
+  }, []);
 
   return (
     <div className="grid grid-cols-2 gap-1 rounded-lg bg-gray-700 p-3 border-2 border-gray-500 hover:border-gray-300 my-2">
@@ -86,19 +87,15 @@ const SwapForm: React.FC<Props> = (props) => {
           min="0"
           className="rounded text-white text-right bg-gray-700 border-0 text-xl focus:ring-0"
           placeholder="0.0"
-          value={inputAmount}
+          value={props.isInputReset ? "" : inputAmount}
           onChange={(e) => handleInputChange(e.target.valueAsNumber)}
         />
       </div>
       <div className="col-span-2 h-6">
         <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : 0}</div>
-        {props.isInput ? (
-          <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleMax(100)}>
-            (Max)
-          </button>
-        ) : (
-          ""
-        )}
+        <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleMax(100)}>
+          (Max)
+        </button>
       </div>
     </div>
   );
