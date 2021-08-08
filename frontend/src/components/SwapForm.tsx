@@ -18,10 +18,6 @@ const SwapForm: React.FC<Props> = (props) => {
   const signer = useContext(SignerContext);
   const [inputAmount, setinputAmount] = useState<number>();
 
-  const handleMax = (amount: number) => {
-    setinputAmount(amount);
-  };
-
   const handleInputChange = (amount: number) => {
     setinputAmount(amount);
     if (props.calcOutputAmount) {
@@ -78,7 +74,7 @@ const SwapForm: React.FC<Props> = (props) => {
       </div>
       <div className="col-span-2 h-6">
         <div className="float-left text-base text-gray-400">balance:{props.isEth ? props.ethBalance : 0}</div>
-        <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleMax(100)}>
+        <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleInputChange(Number(props.ethBalance))}>
           (Max)
         </button>
       </div>

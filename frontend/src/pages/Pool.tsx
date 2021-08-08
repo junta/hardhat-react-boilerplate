@@ -1,15 +1,137 @@
 import React, { useContext, useEffect, useState } from "react";
-
 import SwapForm from "../components/SwapForm";
-import { CogIcon } from "@heroicons/react/outline";
+import SwapOutputForm from "../components/SwapOutputForm";
 import { providers, Signer, ethers, BigNumber } from "ethers";
+import { SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
 
 interface Props {}
 
 export const Pool: React.FC<Props> = () => {
+  const [isEthInput, setIsEthInput] = useState(true);
+  const [inputAmount, setInputAmount] = useState<number>();
+  const [outputAmount, setOutputAmount] = useState<number>();
+  const [isInputReset, setIsInputReset] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [swapMessage, setSwapMessage] = useState("Enter an amount");
+  const [ethBalance, setethBalance] = useState<string>("");
+  const [tokenAddress, settokenAddress] = useState<string>("");
+  const [tokenSympol, settokenSympol] = useState<string>("");
+  const [holdTokenAmount, setholdTokenAmount] = useState<string>("");
+
+  const signer = useContext(SignerContext);
+  const token = useContext(TokenContext);
+  const exchange = useContext(ExchangeContext);
+
+  const toWei = (value: number) => ethers.utils.parseEther(value.toString());
+
+  useEffect(() => {
+    const doAsync = async () => {
+      //const ethBalance = useGetEthBalance();
+
+      if (!signer[0]) return;
+      const ethBalance = await signer[0].getBalance();
+      const currentAddress = await signer[0].getAddress();
+      console.log(currentAddress);
+
+      const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(3);
+
+      //const ethBalance2 = await signer[0]!.getBalance();
+      setethBalance(ethBalanceFormatted);
+      console.log(ethBalanceFormatted);
+
+      if (!token.instance || !exchange.instance) return;
+      settokenAddress(await exchange.instance.getTokenAddress()!);
+      console.log(token.instance.address);
+
+      settokenSympol(await token.instance.getSymbol()!);
+      const supply = await token.instance.totalSupply();
+
+      const tokenAmount = await token.instance.balanceOf(currentAddress);
+      const tokenAmountFormatted = parseFloat(ethers.utils.formatEther(tokenAmount)).toFixed(3);
+
+      setholdTokenAmount(tokenAmountFormatted);
+
+      const ethReserve = await exchange.instance.getEthReserve();
+      const ethReserveFormatted = parseFloat(ethers.utils.formatEther(ethReserve)).toFixed(3);
+      console.log(ethReserveFormatted);
+
+      const reserve = await exchange.instance.getReserve();
+      const reserveFormatted = parseFloat(ethers.utils.formatEther(reserve)).toFixed(5);
+      console.log("token reserve amount:" + reserveFormatted);
+    };
+    doAsync();
+  }, []);
+
+  const calcOutputAmount = async (inputAmount: number) => {
+    setInputAmount(inputAmount);
+
+    //swapFormのinput valueを再表示
+    setIsInputReset(false);
+
+    if (isNaN(inputAmount)) {
+      setOutputAmount(0);
+      setIsButtonDisabled(true);
+      setSwapMessage("Enter an amount");
+    } else {
+      setOutputAmount(inputAmount * 2);
+
+      setIsButtonDisabled(false);
+      if (inputAmount > Number(ethBalance)) {
+        setSwapMessage("Insufficient Balance");
+      } else {
+        setSwapMessage("Add Liquidity");
+      }
+    }
+  };
+
+  const addLiquidity = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (!exchange.instance) throw Error("Exchange instance not ready");
+    if (!outputAmount || !inputAmount) throw Error("no amount");
+    const result = await exchange.instance.addLiquidity(toWei(outputAmount), { value: toWei(inputAmount) });
+    console.log("addLiquidity tx", result);
+    await result.wait();
+    console.log("add liq right way");
+  };
+
+  const approveToken = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (!token.instance || !exchange.instance) throw Error("token instance not ready");
+    const result = await token.instance.approve(exchange.instance.address, toWei(1000));
+    console.log("approve", result);
+    await result.wait();
+    console.log("approve right way");
+  };
+
   return (
-    <div className="rounded-lg bg-gray-800 p-3 shadow">
-      <p>hi</p>
+    <div className="rounded-lg bg-gray-800 p-3 shadow w-600">
+      <div className="grid grid-cols-1">
+        <div className="flex justify-between m-2">
+          <div className=" text-lg text-left">Add Liquidity</div>
+        </div>
+
+        <div>
+          <SwapForm isEth={true} ethBalance={ethBalance} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
+          <SwapOutputForm isEth={false} outputAmount={outputAmount} tokenSympol={tokenSympol} holdTokenAmount={holdTokenAmount} />
+        </div>
+
+        <div className="">
+          <button
+            onClick={(e) => approveToken(e)}
+            className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700"
+            disabled={isButtonDisabled}
+          >
+            approve
+          </button>
+          <button
+            onClick={(e) => addLiquidity(e)}
+            className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700"
+            disabled={isButtonDisabled}
+          >
+            {swapMessage}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

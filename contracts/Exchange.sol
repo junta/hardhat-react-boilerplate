@@ -20,6 +20,10 @@ contract Exchange is ERC20 {
         return tokenAddress;
     }
 
+    function getEthReserve() public view returns (uint256) {
+        return address(this).balance;
+    }
+
     function addLiquidity(uint256 _tokenAmount)
         public
         payable
@@ -73,7 +77,11 @@ contract Exchange is ERC20 {
         require(_ethSold > 0, "ethSold is too small");
 
         uint256 tokenReserve = getReserve();
+        console.log(tokenReserve);
+        console.log(_ethSold);
+        console.log(address(this).balance);
 
+        //return 8;
         return getAmount(_ethSold, address(this).balance, tokenReserve);
     }
 

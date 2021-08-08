@@ -31,6 +31,7 @@ interface ExchangeInterface extends ethers.utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "ethToTokenSwap(uint256)": FunctionFragment;
     "getEthAmount(uint256)": FunctionFragment;
+    "getEthReserve()": FunctionFragment;
     "getReserve()": FunctionFragment;
     "getTokenAddress()": FunctionFragment;
     "getTokenAmount(uint256)": FunctionFragment;
@@ -70,6 +71,10 @@ interface ExchangeInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "getEthAmount",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getEthReserve",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getReserve",
@@ -132,6 +137,10 @@ interface ExchangeInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getEthAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getEthReserve",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getReserve", data: BytesLike): Result;
@@ -289,6 +298,18 @@ export class Exchange extends Contract {
 
     "getEthAmount(uint256)"(
       _tokenSold: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+    }>;
+
+    getEthReserve(
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+    }>;
+
+    "getEthReserve()"(
       overrides?: CallOverrides
     ): Promise<{
       0: BigNumber;
@@ -518,6 +539,10 @@ export class Exchange extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getEthReserve(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "getEthReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   getReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
   "getReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -689,6 +714,10 @@ export class Exchange extends Contract {
       _tokenSold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getEthReserve(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getEthReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -879,6 +908,10 @@ export class Exchange extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getEthReserve(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getEthReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1054,6 +1087,10 @@ export class Exchange extends Contract {
       _tokenSold: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getEthReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getEthReserve()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

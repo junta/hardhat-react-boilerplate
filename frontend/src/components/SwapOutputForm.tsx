@@ -10,6 +10,7 @@ interface Props {
   isEth: Boolean;
   tokenSympol: string;
   outputAmount?: number;
+  holdTokenAmount: string;
 }
 
 const SwapOutputForm: React.FC<Props> = (props) => {
@@ -43,7 +44,7 @@ const SwapOutputForm: React.FC<Props> = (props) => {
         <span className="text-xl text-right float-right mr-10">{props.outputAmount}</span>
       </div>
       <div className="col-span-2 h-6">
-        <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : 0}</div>
+        <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : props.holdTokenAmount}</div>
       </div>
     </div>
   );

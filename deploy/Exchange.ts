@@ -8,6 +8,6 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId, getUnnamedA
   await deploy("Exchange", {
     from: deployer,
     // gas: 4000000,
-    args: ["0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"],
+    args: ["0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"],
   });
 };
