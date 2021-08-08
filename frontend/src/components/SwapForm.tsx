@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 
 interface Props {
   isEth: Boolean;
+  ethBalance?: string;
   isInputReset: Boolean;
   calcOutputAmount?: (amount: number) => void;
 }
@@ -16,7 +17,6 @@ interface Props {
 const SwapForm: React.FC<Props> = (props) => {
   const signer = useContext(SignerContext);
   const [inputAmount, setinputAmount] = useState<number>();
-  const [ethBalance, setethBalance] = useState<string>("");
 
   const handleMax = (amount: number) => {
     setinputAmount(amount);
@@ -28,21 +28,6 @@ const SwapForm: React.FC<Props> = (props) => {
       props.calcOutputAmount(amount);
     }
   };
-
-  useEffect(() => {
-    const doAsync = async () => {
-      //const ethBalance = useGetEthBalance();
-
-      if (!signer[0] || !props.isEth) return;
-      const ethBalance = await signer[0]!.getBalance();
-      const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(3);
-
-      //const ethBalance2 = await signer[0]!.getBalance();
-      setethBalance(ethBalanceFormatted);
-      console.log(ethBalanceFormatted);
-    };
-    doAsync();
-  }, []);
 
   return (
     <div className="grid grid-cols-2 gap-1 rounded-lg bg-gray-700 p-3 border-2 border-gray-500 hover:border-gray-300 my-2">
@@ -92,7 +77,7 @@ const SwapForm: React.FC<Props> = (props) => {
         />
       </div>
       <div className="col-span-2 h-6">
-        <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : 0}</div>
+        <div className="float-left text-base text-gray-400">balance:{props.isEth ? props.ethBalance : 0}</div>
         <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleMax(100)}>
           (Max)
         </button>

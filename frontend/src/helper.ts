@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { SignerContext } from "./hardhat/SymfoniContext";
 import { ethers } from "ethers";
 
-export const useGetEthBalance = () => {
+export const useGetEthBalance = (): string => {
   const signer = useContext(SignerContext);
   const [ethBalance, setethBalance] = useState<string>("");
 

@@ -8,6 +8,7 @@ import { ethers } from "ethers";
 
 interface Props {
   isEth: Boolean;
+  tokenSympol: string;
   outputAmount?: number;
 }
 
@@ -35,7 +36,7 @@ const SwapOutputForm: React.FC<Props> = (props) => {
         <p>
           <img src={props.isEth ? ethIcon : bitcoinIcon} width="24px" className="float-left" />
         </p>
-        <p className="float-left text-lg ml-2">{props.isEth ? "ETH" : "JTK"}</p>
+        <p className="float-left text-lg ml-2">{props.tokenSympol}</p>
       </div>
 
       <div className="h-12">
