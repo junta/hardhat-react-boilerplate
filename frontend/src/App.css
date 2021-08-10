@@ -34,7 +34,3 @@
     transform: rotate(360deg);
   }
 }
-
-.nav-button {
-  @apply text-xl inline-block rounded py-1 px-3 bg-gray-900;
-}

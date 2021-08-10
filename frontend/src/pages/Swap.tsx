@@ -5,6 +5,7 @@ import SwapOutputForm from "../components/SwapOutputForm";
 import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
 import { providers, Signer, ethers, BigNumber } from "ethers";
 import { SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
+import useGetEthBalance from "../helper";
 
 interface Props {}
 
@@ -14,7 +15,7 @@ export const Swap: React.FC<Props> = () => {
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [swapMessage, setSwapMessage] = useState("Enter an amount");
-  const [ethBalance, setethBalance] = useState<string>("");
+  //const [ethBalance, setethBalance] = useState<string>("");
   const [tokenAddress, settokenAddress] = useState<string>("");
   const [tokenSympol, settokenSympol] = useState<string>("");
   const [holdTokenAmount, setholdTokenAmount] = useState<string>("");
@@ -25,20 +26,21 @@ export const Swap: React.FC<Props> = () => {
 
   const toWei = (value: number) => ethers.utils.parseEther(value.toString());
 
+  const ethBalance = useGetEthBalance();
+
   useEffect(() => {
     const doAsync = async () => {
-      //const ethBalance = useGetEthBalance();
-
       if (!signer[0]) return;
-      const ethBalance = await signer[0].getBalance();
+
+      //const ethBalance = await signer[0].getBalance();
       const currentAddress = await signer[0].getAddress();
       console.log(currentAddress);
 
-      const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(3);
+      //const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(3);
 
       //const ethBalance2 = await signer[0]!.getBalance();
-      setethBalance(ethBalanceFormatted);
-      console.log(ethBalanceFormatted);
+      //setethBalance(ethBalanceFormatted);
+      //console.log(ethBalanceFormatted);
 
       if (!token.instance || !exchange.instance) return;
       const exTokenAddress = await exchange.instance.getTokenAddress();
@@ -106,7 +108,7 @@ export const Swap: React.FC<Props> = () => {
         </div>
         {isEthInput ? (
           <div>
-            <SwapForm isEth={true} ethBalance={ethBalance} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
+            <SwapForm isEth={true} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
             <SwapOutputForm isEth={false} outputAmount={outputAmount} tokenSympol={tokenSympol} holdTokenAmount={holdTokenAmount} />
           </div>
         ) : (

@@ -5,11 +5,10 @@ import ethIcon from "../eth_icon.png";
 import bitcoinIcon from "../bitcoin.png";
 import { SignerContext } from "./../hardhat/SymfoniContext";
 import { ethers } from "ethers";
-//import { useGetEthBalance } from "../helper";
+import useGetEthBalance from "../helper";
 
 interface Props {
   isEth: Boolean;
-  ethBalance?: string;
   isInputReset: Boolean;
   calcOutputAmount?: (amount: number) => void;
 }
@@ -17,6 +16,7 @@ interface Props {
 const SwapForm: React.FC<Props> = (props) => {
   const signer = useContext(SignerContext);
   const [inputAmount, setinputAmount] = useState<number>();
+  const ethBalance = useGetEthBalance();
 
   const handleInputChange = (amount: number) => {
     setinputAmount(amount);
@@ -73,8 +73,8 @@ const SwapForm: React.FC<Props> = (props) => {
         />
       </div>
       <div className="col-span-2 h-6">
-        <div className="float-left text-base text-gray-400">balance:{props.isEth ? props.ethBalance : 0}</div>
-        <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleInputChange(Number(props.ethBalance))}>
+        <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : 0}</div>
+        <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleInputChange(Number(ethBalance))}>
           (Max)
         </button>
       </div>
