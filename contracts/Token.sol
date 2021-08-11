@@ -11,13 +11,4 @@ contract Token is ERC20 {
     ) ERC20(name, symbol) {
         _mint(msg.sender, initialSupply);
     }
-
-      function getSymbol() public view returns (string memory) {
-        return ERC20.symbol();
-    }
-
-    function getSupply() public view returns (uint256) {
-        return ERC20.totalSupply();
-    }
-
 }

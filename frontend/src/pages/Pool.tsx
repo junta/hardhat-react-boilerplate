@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { providers, Signer, ethers, BigNumber } from "ethers";
-import { SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
+import { SignerContext, TokenContext, ExchangeContext, ProviderContext } from "./../hardhat/SymfoniContext";
 import useGetEthBalance from "../helper";
 
 interface Props {}
@@ -21,6 +21,7 @@ export const Pool: React.FC<Props> = () => {
   const signer = useContext(SignerContext);
   const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
+  const [provider, setprovider] = useContext(ProviderContext);
 
   const toWei = (value: number) => ethers.utils.parseEther(value.toString());
 
@@ -28,25 +29,22 @@ export const Pool: React.FC<Props> = () => {
 
   useEffect(() => {
     const doAsync = async () => {
-      //const ethBalance = useGetEthBalance();
-
       if (!signer[0]) return;
       const currentAddress = await signer[0].getAddress();
       console.log(currentAddress);
 
-      if (!token.instance || !exchange.instance) return;
-      settokenAddress(await exchange.instance.getTokenAddress()!);
-      console.log(token.instance.address);
+      if (!token.instance || !exchange.instance || !provider) return;
+      const exTokenAddress = await exchange.instance.tokenAddress();
+      settokenAddress(exTokenAddress);
 
-      settokenSympol(await token.instance.getSymbol()!);
-      const supply = await token.instance.totalSupply();
+      settokenSympol(await token.instance.symbol());
 
       const tokenAmount = await token.instance.balanceOf(currentAddress);
       const tokenAmountFormatted = parseFloat(ethers.utils.formatEther(tokenAmount)).toFixed(3);
 
       setholdTokenAmount(tokenAmountFormatted);
 
-      const ethReserve = await exchange.instance.getEthReserve();
+      const ethReserve = await provider.getBalance(exchange.instance.address);
       const ethReserveFormatted = parseFloat(ethers.utils.formatEther(ethReserve)).toFixed(3);
       console.log(ethReserveFormatted);
 

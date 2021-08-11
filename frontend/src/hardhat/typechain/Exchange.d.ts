@@ -31,9 +31,7 @@ interface ExchangeInterface extends ethers.utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "ethToTokenSwap(uint256)": FunctionFragment;
     "getEthAmount(uint256)": FunctionFragment;
-    "getEthReserve()": FunctionFragment;
     "getReserve()": FunctionFragment;
-    "getTokenAddress()": FunctionFragment;
     "getTokenAmount(uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
@@ -73,15 +71,7 @@ interface ExchangeInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getEthReserve",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getReserve",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTokenAddress",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -139,15 +129,7 @@ interface ExchangeInterface extends ethers.utils.Interface {
     functionFragment: "getEthAmount",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getEthReserve",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getReserve", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getTokenAddress",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getTokenAmount",
     data: BytesLike
@@ -303,18 +285,6 @@ export class Exchange extends Contract {
       0: BigNumber;
     }>;
 
-    getEthReserve(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: BigNumber;
-    }>;
-
-    "getEthReserve()"(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: BigNumber;
-    }>;
-
     getReserve(
       overrides?: CallOverrides
     ): Promise<{
@@ -325,18 +295,6 @@ export class Exchange extends Contract {
       overrides?: CallOverrides
     ): Promise<{
       0: BigNumber;
-    }>;
-
-    getTokenAddress(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: string;
-    }>;
-
-    "getTokenAddress()"(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: string;
     }>;
 
     getTokenAmount(
@@ -539,17 +497,9 @@ export class Exchange extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  getEthReserve(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getEthReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
   getReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
   "getReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getTokenAddress(overrides?: CallOverrides): Promise<string>;
-
-  "getTokenAddress()"(overrides?: CallOverrides): Promise<string>;
 
   getTokenAmount(
     _ethSold: BigNumberish,
@@ -715,17 +665,9 @@ export class Exchange extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getEthReserve(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getEthReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTokenAddress(overrides?: CallOverrides): Promise<string>;
-
-    "getTokenAddress()"(overrides?: CallOverrides): Promise<string>;
 
     getTokenAmount(
       _ethSold: BigNumberish,
@@ -908,17 +850,9 @@ export class Exchange extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getEthReserve(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getEthReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getReserve(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getReserve()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getTokenAddress()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTokenAmount(
       _ethSold: BigNumberish,
@@ -1088,19 +1022,9 @@ export class Exchange extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getEthReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getEthReserve()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getReserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "getReserve()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getTokenAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getTokenAddress()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     getTokenAmount(
       _ethSold: BigNumberish,

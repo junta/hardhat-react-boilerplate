@@ -27,8 +27,6 @@ interface TokenInterface extends ethers.utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "getSupply()": FunctionFragment;
-    "getSymbol()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -51,8 +49,6 @@ interface TokenInterface extends ethers.utils.Interface {
     functionFragment: "decreaseAllowance",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "getSupply", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getSymbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [string, BigNumberish]
@@ -80,8 +76,6 @@ interface TokenInterface extends ethers.utils.Interface {
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "getSupply", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getSymbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
@@ -186,30 +180,6 @@ export class Token extends Contract {
       subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
-
-    getSupply(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: BigNumber;
-    }>;
-
-    "getSupply()"(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: BigNumber;
-    }>;
-
-    getSymbol(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: string;
-    }>;
-
-    "getSymbol()"(
-      overrides?: CallOverrides
-    ): Promise<{
-      0: string;
-    }>;
 
     increaseAllowance(
       spender: string,
@@ -333,14 +303,6 @@ export class Token extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  getSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getSymbol(overrides?: CallOverrides): Promise<string>;
-
-  "getSymbol()"(overrides?: CallOverrides): Promise<string>;
-
   increaseAllowance(
     spender: string,
     addedValue: BigNumberish,
@@ -438,14 +400,6 @@ export class Token extends Contract {
       subtractedValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    getSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getSymbol(overrides?: CallOverrides): Promise<string>;
-
-    "getSymbol()"(overrides?: CallOverrides): Promise<string>;
 
     increaseAllowance(
       spender: string,
@@ -556,14 +510,6 @@ export class Token extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    getSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getSupply()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getSymbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getSymbol()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -665,14 +611,6 @@ export class Token extends Contract {
       subtractedValue: BigNumberish,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
-
-    getSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getSupply()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getSymbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getSymbol()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: string,

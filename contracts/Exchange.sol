@@ -9,19 +9,11 @@ import "hardhat/console.sol";
 contract Exchange is ERC20 {
     address public tokenAddress;
 
-    constructor(address _token) ERC20("Zuniswap-V1", "ZUNI-V1") {
+    constructor(address _token) ERC20("JunSwap-V1", "JUN-V1") {
         require(_token != address(0), "invalid token address");
 
         console.log("Deploying a Exchange with token address:", _token);
         tokenAddress = _token;
-    }
-
-    function getTokenAddress() public view returns (address) {
-        return tokenAddress;
-    }
-
-    function getEthReserve() public view returns (uint256) {
-        return address(this).balance;
     }
 
     function addLiquidity(uint256 _tokenAmount)
@@ -77,9 +69,9 @@ contract Exchange is ERC20 {
         require(_ethSold > 0, "ethSold is too small");
 
         uint256 tokenReserve = getReserve();
-        console.log(tokenReserve);
-        console.log(_ethSold);
-        console.log(address(this).balance);
+        //console.log(tokenReserve);
+        //console.log(_ethSold);
+        //console.log(address(this).balance);
 
         //return 8;
         return getAmount(_ethSold, address(this).balance, tokenReserve);
@@ -100,6 +92,7 @@ contract Exchange is ERC20 {
             address(this).balance - msg.value,
             tokenReserve
         );
+        console.log(tokensBought);
 
         require(tokensBought >= _minTokens, "insufficient output amount");
 

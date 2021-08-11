@@ -4,13 +4,14 @@ import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
 import { providers, Signer, ethers, BigNumber } from "ethers";
-import { SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
+import { ProviderContext, SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
 import useGetEthBalance from "../helper";
 
 interface Props {}
 
 export const Swap: React.FC<Props> = () => {
   const [isEthInput, setIsEthInput] = useState(true);
+  const [inputAmount, setInputAmount] = useState<number>();
   const [outputAmount, setOutputAmount] = useState<number>();
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -20,7 +21,7 @@ export const Swap: React.FC<Props> = () => {
   const [tokenSympol, settokenSympol] = useState<string>("");
   const [holdTokenAmount, setholdTokenAmount] = useState<string>("");
 
-  const signer = useContext(SignerContext);
+  const [signer, setSigner] = useContext(SignerContext);
   const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
 
@@ -30,26 +31,18 @@ export const Swap: React.FC<Props> = () => {
 
   useEffect(() => {
     const doAsync = async () => {
-      if (!signer[0]) return;
+      if (!signer) return;
 
-      //const ethBalance = await signer[0].getBalance();
-      const currentAddress = await signer[0].getAddress();
+      const currentAddress = await signer.getAddress();
       console.log(currentAddress);
 
-      //const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(3);
-
-      //const ethBalance2 = await signer[0]!.getBalance();
-      //setethBalance(ethBalanceFormatted);
-      //console.log(ethBalanceFormatted);
-
       if (!token.instance || !exchange.instance) return;
-      const exTokenAddress = await exchange.instance.getTokenAddress();
+      const exTokenAddress = await exchange.instance.tokenAddress();
       console.log("exchange token address:" + exTokenAddress);
 
       console.log("token address:" + token.instance.address);
 
-      settokenSympol(await token.instance.getSymbol()!);
-      const supply = await token.instance.totalSupply();
+      settokenSympol(await token.instance.symbol());
 
       const tokenAmount = await token.instance.balanceOf(currentAddress);
       const tokenAmountFormatted = parseFloat(ethers.utils.formatEther(tokenAmount)).toFixed(3);
@@ -66,6 +59,8 @@ export const Swap: React.FC<Props> = () => {
   };
 
   const calcOutputAmount = async (inputAmount: number) => {
+    setInputAmount(inputAmount);
+
     //swapFormのinput valueを再表示
     setIsInputReset(false);
 
@@ -94,6 +89,17 @@ export const Swap: React.FC<Props> = () => {
     }
   };
 
+  const orderSwap = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (!exchange.instance) throw Error("Exchange instance not ready");
+    if (!outputAmount || !inputAmount) throw Error("no amount");
+    const minOutputAmount = outputAmount * 0.995;
+    const result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
+    console.log("swap tx", result);
+    await result.wait();
+    console.log("swap is done right way");
+  };
+
   return (
     <div className="rounded-lg bg-gray-800 p-3 shadow w-600">
       <div className="grid grid-cols-1">
@@ -119,7 +125,12 @@ export const Swap: React.FC<Props> = () => {
         )}
 
         <div className="">
-          <button type="button" className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700" disabled={isButtonDisabled}>
+          <button
+            type="button"
+            onClick={(e) => orderSwap(e)}
+            className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700"
+            disabled={isButtonDisabled}
+          >
             {swapMessage}
           </button>
         </div>
