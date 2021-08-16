@@ -1,23 +1,42 @@
 import { useCallback, useEffect, useRef, useState, useContext } from "react";
-import { SignerContext, ProviderContext } from "./hardhat/SymfoniContext";
+import { SignerContext, ProviderContext, CurrentAddressContext, TokenContext, ExchangeContext } from "./hardhat/SymfoniContext";
 import { ethers } from "ethers";
 
-export const useGetEthBalance = (): string => {
+export const useGetOnchainData = (): string[] => {
   const [signer, setSigner] = useContext(SignerContext);
   const [provider, setprovider] = useContext(ProviderContext);
-  const [ethBalance, setethBalance] = useState<string>("");
+  const [currentAddress, setcurrentAddress] = useContext(CurrentAddressContext);
+  const token = useContext(TokenContext);
+  const exchange = useContext(ExchangeContext);
+
+  const [ethBalance, setEthBalance] = useState<string>("");
+  const [tokenSymbol, setTokenSymbol] = useState<string>("");
+  const [tokenBalance, setTokenBalance] = useState<string>("");
+  const [allowanceAmount, setAllowanceAmount] = useState<string>("");
+
   const prevBalanceRef = useRef("");
 
   const fetchBalance = useCallback(async () => {
-    if (!signer) return;
+    if (!signer || !token.instance || !exchange.instance) return;
     const balance = await signer.getBalance();
     const ethBalanceFormatted = parseFloat(ethers.utils.formatEther(balance)).toFixed(3);
+
+    const tokenSymbol = await token.instance.symbol();
+
+    const tokenBalance = await token.instance.balanceOf(currentAddress);
+    const tokenBalanceFormatted = parseFloat(ethers.utils.formatEther(tokenBalance)).toFixed(3);
+
+    const currentallowanceAmount = await token.instance.allowance(currentAddress, exchange.instance.address);
+    const allowanceAmountFormatted = parseFloat(ethers.utils.formatEther(currentallowanceAmount)).toFixed(3);
 
     // Optimization: check that user balance has actually changed before
     // updating state and triggering the consuming component re-render
     if (ethBalanceFormatted !== prevBalanceRef.current) {
       prevBalanceRef.current = ethBalanceFormatted;
-      setethBalance(ethBalanceFormatted);
+      setEthBalance(ethBalanceFormatted);
+      setTokenSymbol(tokenSymbol);
+      setTokenBalance(tokenBalanceFormatted);
+      setAllowanceAmount(allowanceAmountFormatted);
     }
   }, []);
 
@@ -38,7 +57,7 @@ export const useGetEthBalance = (): string => {
     };
   }, [fetchBalance]);
 
-  return ethBalance;
+  return [ethBalance, tokenSymbol, tokenBalance, allowanceAmount];
 };
 
 export const toWei = (value: number) => ethers.utils.parseEther(value.toString());

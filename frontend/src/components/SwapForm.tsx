@@ -5,7 +5,7 @@ import ethIcon from "../eth_icon.png";
 import bitcoinIcon from "../bitcoin.png";
 import { SignerContext } from "./../hardhat/SymfoniContext";
 import { ethers } from "ethers";
-import { useGetEthBalance, toWei } from "../helper";
+import { useGetOnchainData, toWei } from "../helper";
 
 interface Props {
   isEth: Boolean;
@@ -16,7 +16,8 @@ interface Props {
 const SwapForm: React.FC<Props> = (props) => {
   const signer = useContext(SignerContext);
   const [inputAmount, setinputAmount] = useState<number>();
-  const ethBalance = useGetEthBalance();
+
+  const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
 
   const handleInputChange = (amount: number) => {
     setinputAmount(amount);
@@ -31,7 +32,7 @@ const SwapForm: React.FC<Props> = (props) => {
         <p>
           <img src={props.isEth ? ethIcon : bitcoinIcon} width="24px" className="float-left" />
         </p>
-        <p className="float-left text-lg ml-2">{props.isEth ? "ETH" : "JTK"}</p>
+        <p className="float-left text-lg ml-2">{props.isEth ? "ETH" : tokenSymbol}</p>
       </div>
 
       <div className="h-12">
@@ -46,7 +47,7 @@ const SwapForm: React.FC<Props> = (props) => {
         />
       </div>
       <div className="col-span-2 h-6">
-        <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : 0}</div>
+        <div className="float-left text-base text-gray-400">balance:{props.isEth ? ethBalance : tokenBalance}</div>
         <button className="float-left text-base text-blue-500 ml-1" onClick={() => handleInputChange(Number(ethBalance))}>
           (Max)
         </button>

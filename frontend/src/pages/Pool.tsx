@@ -1,11 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import SwapForm from "../components/SwapForm";
-import SwapOutputForm from "../components/SwapOutputForm";
 import RemoveLiquidity from "../components/removeLiquidity";
 import AddLiquidity from "../components/addLiquidity";
 import { ethers } from "ethers";
-import { TokenContext, ExchangeContext, ProviderContext, CurrentAddressContext } from "./../hardhat/SymfoniContext";
-import { useGetEthBalance, toWei } from "../helper";
+import { ExchangeContext, CurrentAddressContext } from "./../hardhat/SymfoniContext";
 
 interface Props {}
 

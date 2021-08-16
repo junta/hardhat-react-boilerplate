@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Route, NavLink, Link, Switch } from "react-rou
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="App flex flex-col bg-gray-500 items-center">
+      <div className="App flex flex-col bg-gray-200 items-center">
         <header className="App-header h-32 mt-3">
           <ul className="flex">
             <li className="mr-5">

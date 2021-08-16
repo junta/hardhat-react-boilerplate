@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { ethers } from "ethers";
-import { TokenContext, ExchangeContext, ProviderContext, CurrentAddressContext } from "./../hardhat/SymfoniContext";
-import { useGetEthBalance, toWei } from "../helper";
+import { TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
+import { useGetOnchainData, toWei } from "../helper";
 
 interface Props {}
 
@@ -13,46 +13,10 @@ export const AddLiquidity: React.FC<Props> = (props) => {
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [swapMessage, setSwapMessage] = useState("Enter an amount");
-  const [tokenSympol, settokenSympol] = useState<string>("");
-  const [holdTokenAmount, setholdTokenAmount] = useState<string>("");
-  const [allowanceAmount, setallowanceAmount] = useState<string>("");
 
   const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
-  const [currentAddress, setcurrentAddress] = useContext(CurrentAddressContext);
-
-  const [provider, setprovider] = useContext(ProviderContext);
-
-  const ethBalance = useGetEthBalance();
-
-  useEffect(() => {
-    const doAsync = async () => {
-      console.log(currentAddress);
-
-      if (!token.instance || !exchange.instance || !provider) return;
-
-      settokenSympol(await token.instance.symbol());
-
-      const currentallowanceAmount = await token.instance.allowance(currentAddress, exchange.instance.address);
-      const allowanceAmountFormatted = parseFloat(ethers.utils.formatEther(currentallowanceAmount)).toFixed(3);
-      setallowanceAmount(allowanceAmountFormatted);
-      console.log("allowance" + allowanceAmount);
-
-      const tokenAmount = await token.instance.balanceOf(currentAddress);
-      const tokenAmountFormatted = parseFloat(ethers.utils.formatEther(tokenAmount)).toFixed(3);
-
-      setholdTokenAmount(tokenAmountFormatted);
-
-      const ethReserve = await provider.getBalance(exchange.instance.address);
-      const ethReserveFormatted = parseFloat(ethers.utils.formatEther(ethReserve)).toFixed(3);
-      console.log(ethReserveFormatted);
-
-      const reserve = await exchange.instance.getReserve();
-      const reserveFormatted = parseFloat(ethers.utils.formatEther(reserve)).toFixed(5);
-      console.log("token reserve amount:" + reserveFormatted);
-    };
-    doAsync();
-  }, []);
+  const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
 
   const calcOutputAmount = async (inputAmount: number) => {
     setInputAmount(inputAmount);
@@ -66,10 +30,14 @@ export const AddLiquidity: React.FC<Props> = (props) => {
       setSwapMessage("Enter an amount");
     } else {
       if (!exchange.instance) return;
-      const predictGetAmount = await exchange.instance.getTokenAmount(toWei(inputAmount));
-      const predictGetAmountFormatted = parseFloat(ethers.utils.formatEther(predictGetAmount)).toFixed(3);
 
-      if (predictGetAmountFormatted) {
+      const exchangeReserve = await exchange.instance.getReserve();
+      console.log("exchange reserve" + exchangeReserve);
+      if (Number(exchangeReserve) === 0) {
+        setOutputAmount(inputAmount * 2);
+      } else {
+        const predictGetAmount = await exchange.instance.getTokenAmount(toWei(inputAmount));
+        const predictGetAmountFormatted = parseFloat(ethers.utils.formatEther(predictGetAmount)).toFixed(3);
         setOutputAmount(Number(predictGetAmountFormatted));
       }
 
@@ -111,7 +79,7 @@ export const AddLiquidity: React.FC<Props> = (props) => {
         </div>
         <div>
           <SwapForm isEth={true} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
-          <SwapOutputForm isEth={false} outputAmount={outputAmount} tokenSympol={tokenSympol} holdTokenAmount={holdTokenAmount} />
+          <SwapOutputForm isEth={false} outputAmount={outputAmount} />
         </div>
         <div className="">
           <button

@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Menu } from "@headlessui/react";
+import React, { useContext, useState } from "react";
 import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
-import { providers, Signer, ethers, BigNumber } from "ethers";
-import { ProviderContext, SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
-import { useGetEthBalance, toWei } from "../helper";
+import { ethers } from "ethers";
+import { ExchangeContext } from "./../hardhat/SymfoniContext";
+import { useGetOnchainData, toWei } from "../helper";
 
 interface Props {}
 
@@ -16,43 +15,10 @@ export const Swap: React.FC<Props> = () => {
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [swapMessage, setSwapMessage] = useState("Enter an amount");
-  //const [ethBalance, setethBalance] = useState<string>("");
-  const [tokenAddress, settokenAddress] = useState<string>("");
-  const [tokenSympol, settokenSympol] = useState<string>("");
-  const [holdTokenAmount, setholdTokenAmount] = useState<string>("");
 
-  const [signer, setSigner] = useContext(SignerContext);
-  const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
 
-  const ethBalance = useGetEthBalance();
-
-  useEffect(() => {
-    const doAsync = async () => {
-      if (!signer) return;
-
-      const currentAddress = await signer.getAddress();
-      console.log(currentAddress);
-
-      if (!token.instance || !exchange.instance) return;
-      const exTokenAddress = await exchange.instance.tokenAddress();
-      console.log("exchange token address:" + exTokenAddress);
-
-      console.log("token address:" + token.instance.address);
-
-      settokenSympol(await token.instance.symbol());
-
-      const tokenAmount = await token.instance.balanceOf(currentAddress);
-      const tokenAmountFormatted = parseFloat(ethers.utils.formatEther(tokenAmount)).toFixed(3);
-
-      setholdTokenAmount(tokenAmountFormatted);
-
-      const approval = await token.instance.allowance(currentAddress, exchange.instance.address);
-      const approvalAmountFormatted = parseFloat(ethers.utils.formatEther(approval)).toFixed(3);
-      console.log("approval amount:  %s", approvalAmountFormatted);
-    };
-    doAsync();
-  }, []);
+  const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
 
   const changeFormPos = () => {
     setIsEthInput(!isEthInput);
@@ -71,8 +37,6 @@ export const Swap: React.FC<Props> = () => {
       setIsButtonDisabled(true);
       setSwapMessage("Enter an amount");
     } else {
-      //setOutputAmount(inputAmount * 2);
-
       //トレード後得られる量を取得し、表示
       if (!exchange.instance) return;
       const predictGetAmount = await exchange.instance.getTokenAmount(toWei(inputAmount));
@@ -95,7 +59,11 @@ export const Swap: React.FC<Props> = () => {
     e.preventDefault();
     if (!exchange.instance) throw Error("Exchange instance not ready");
     if (!outputAmount || !inputAmount) throw Error("no amount");
+    
+    //Slippage
     const minOutputAmount = outputAmount * 0.995;
+
+    if (isEthInput) { }
     const result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
     console.log("swap tx", result);
     const receipt = await result.wait();
@@ -117,12 +85,12 @@ export const Swap: React.FC<Props> = () => {
         {isEthInput ? (
           <div>
             <SwapForm isEth={true} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
-            <SwapOutputForm isEth={false} outputAmount={outputAmount} tokenSympol={tokenSympol} holdTokenAmount={holdTokenAmount} />
+            <SwapOutputForm isEth={false} outputAmount={outputAmount} />
           </div>
         ) : (
           <div>
             <SwapForm isEth={false} calcOutputAmount={calcOutputAmount} isInputReset={isInputReset} />
-            <SwapOutputForm isEth={true} outputAmount={outputAmount} tokenSympol={tokenSympol} holdTokenAmount={holdTokenAmount} />
+            <SwapOutputForm isEth={true} outputAmount={outputAmount} />
           </div>
         )}
 

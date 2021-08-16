@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": "../../react/tic-tac-toe"
+	},
+	{
+		"path": "../react-hardhat"
+	},
+	{
+		"path": "."
+	}
+],
+  "settings": {}
+}
