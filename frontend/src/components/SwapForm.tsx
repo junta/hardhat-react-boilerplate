@@ -5,7 +5,7 @@ import ethIcon from "../eth_icon.png";
 import bitcoinIcon from "../bitcoin.png";
 import { SignerContext } from "./../hardhat/SymfoniContext";
 import { ethers } from "ethers";
-import useGetEthBalance from "../helper";
+import { useGetEthBalance, toWei } from "../helper";
 
 interface Props {
   isEth: Boolean;
@@ -27,33 +27,6 @@ const SwapForm: React.FC<Props> = (props) => {
 
   return (
     <div className="grid grid-cols-2 gap-1 rounded-lg bg-gray-700 p-3 border-2 border-gray-500 hover:border-gray-300 my-2">
-      {/*
-    <Menu>
-      <Menu.Button>More</Menu.Button>
-      <Menu.Items>
-        <Menu.Item>
-          {({ active }) => (
-            <a
-              className={`${active && "bg-blue-500"}`}
-              href="/account-settings"
-            >
-              Account settings
-            </a>
-          )}
-        </Menu.Item>
-        <Menu.Item>
-          {({ active }) => (
-            <a
-              className={`${active && "bg-blue-500"}`}
-              href="/account-settings"
-            >
-              Documentation
-            </a>
-          )}
-        </Menu.Item>
-      </Menu.Items>
-    </Menu>
-    */}
       <div className="rounded-lg bg-gray-800 p-3 shadow h-12 w-28">
         <p>
           <img src={props.isEth ? ethIcon : bitcoinIcon} width="24px" className="float-left" />

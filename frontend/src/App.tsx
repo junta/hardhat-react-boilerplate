@@ -1,13 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import { Symfoni, CurrentAddressContext, GreeterContext } from "./hardhat/SymfoniContext";
+import { Symfoni, CurrentAddressContext } from "./hardhat/SymfoniContext";
 import { Swap } from "./pages/Swap";
 import { Pool } from "./pages/Pool";
-import { Greeter } from "./components/Greeter";
 import { BrowserRouter as Router, Route, NavLink, Link, Switch } from "react-router-dom";
 
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
       <div className="App flex flex-col bg-gray-500 items-center">
@@ -26,9 +24,6 @@ function App() {
           </ul>
         </header>
         <Symfoni autoInit={true}>
-          {/*
-            <Greeter></Greeter>
-            */}
           <Switch>
             <Route path="/" exact component={Swap} />
             <Route path="/pool" exact component={Pool} />
@@ -37,6 +32,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;

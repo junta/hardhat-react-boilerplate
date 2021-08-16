@@ -8,6 +8,7 @@ import "hardhat/console.sol";
 
 contract Exchange is ERC20 {
     address public tokenAddress;
+    //event swapDone(address sender, uint256 amount);
 
     constructor(address _token) ERC20("JunSwap-V1", "JUN-V1") {
         require(_token != address(0), "invalid token address");
@@ -69,11 +70,7 @@ contract Exchange is ERC20 {
         require(_ethSold > 0, "ethSold is too small");
 
         uint256 tokenReserve = getReserve();
-        //console.log(tokenReserve);
-        //console.log(_ethSold);
-        //console.log(address(this).balance);
 
-        //return 8;
         return getAmount(_ethSold, address(this).balance, tokenReserve);
     }
 
@@ -97,6 +94,9 @@ contract Exchange is ERC20 {
         require(tokensBought >= _minTokens, "insufficient output amount");
 
         IERC20(tokenAddress).transfer(msg.sender, tokensBought);
+
+        //emit swapDone(msg.sender, tokensBought);
+
     }
 
     function tokenToEthSwap(uint256 _tokensSold, uint256 _minEth) public {

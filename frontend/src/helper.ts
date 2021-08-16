@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, useContext } from "react";
 import { SignerContext, ProviderContext } from "./hardhat/SymfoniContext";
 import { ethers } from "ethers";
 
-const useGetEthBalance = (): string => {
+export const useGetEthBalance = (): string => {
   const [signer, setSigner] = useContext(SignerContext);
   const [provider, setprovider] = useContext(ProviderContext);
   const [ethBalance, setethBalance] = useState<string>("");
@@ -41,4 +41,4 @@ const useGetEthBalance = (): string => {
   return ethBalance;
 };
 
-export default useGetEthBalance;
+export const toWei = (value: number) => ethers.utils.parseEther(value.toString());

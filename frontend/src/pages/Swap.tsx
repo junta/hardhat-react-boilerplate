@@ -5,7 +5,7 @@ import SwapOutputForm from "../components/SwapOutputForm";
 import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
 import { providers, Signer, ethers, BigNumber } from "ethers";
 import { ProviderContext, SignerContext, TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
-import useGetEthBalance from "../helper";
+import { useGetEthBalance, toWei } from "../helper";
 
 interface Props {}
 
@@ -24,8 +24,6 @@ export const Swap: React.FC<Props> = () => {
   const [signer, setSigner] = useContext(SignerContext);
   const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
-
-  const toWei = (value: number) => ethers.utils.parseEther(value.toString());
 
   const ethBalance = useGetEthBalance();
 
@@ -48,6 +46,10 @@ export const Swap: React.FC<Props> = () => {
       const tokenAmountFormatted = parseFloat(ethers.utils.formatEther(tokenAmount)).toFixed(3);
 
       setholdTokenAmount(tokenAmountFormatted);
+
+      const approval = await token.instance.allowance(currentAddress, exchange.instance.address);
+      const approvalAmountFormatted = parseFloat(ethers.utils.formatEther(approval)).toFixed(3);
+      console.log("approval amount:  %s", approvalAmountFormatted);
     };
     doAsync();
   }, []);
@@ -96,8 +98,8 @@ export const Swap: React.FC<Props> = () => {
     const minOutputAmount = outputAmount * 0.995;
     const result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
     console.log("swap tx", result);
-    await result.wait();
-    console.log("swap is done right way");
+    const receipt = await result.wait();
+    console.log("swap is done right way", receipt.events);
   };
 
   return (
