@@ -61,3 +61,20 @@ export const useGetOnchainData = (): string[] => {
 };
 
 export const toWei = (value: number) => ethers.utils.parseEther(value.toString());
+
+export const useApproveToken = async () => {
+  const token = useContext(TokenContext);
+  const exchange = useContext(ExchangeContext);
+
+  const orderApprove = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, approveAmount: number | undefined) => {
+    e.preventDefault();
+    if (!token.instance || !exchange.instance) throw Error("token instance not ready");
+    if (!approveAmount) throw Error("no amount");
+    const result = await token.instance.approve(exchange.instance.address, toWei(Number(approveAmount)));
+    console.log("approve", result);
+    await result.wait();
+    console.log("approve right way");
+  };
+
+  return orderApprove;
+};

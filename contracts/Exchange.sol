@@ -106,6 +106,9 @@ contract Exchange is ERC20 {
             tokenReserve,
             address(this).balance
         );
+        console.log(ethBought);
+        console.log(_tokensSold);
+        console.log(_minEth);
 
         require(ethBought >= _minEth, "insufficient output amount");
 

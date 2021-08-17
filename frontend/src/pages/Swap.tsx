@@ -1,10 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
 import { ethers } from "ethers";
-import { ExchangeContext } from "./../hardhat/SymfoniContext";
+import { ExchangeContext, TokenContext } from "./../hardhat/SymfoniContext";
 import { useGetOnchainData, toWei } from "../helper";
+import ApproveButton from "../components/ApproveButton";
 
 interface Props {}
 
@@ -15,8 +16,10 @@ export const Swap: React.FC<Props> = () => {
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [swapMessage, setSwapMessage] = useState("Enter an amount");
+  const [showApprove, setshowApprove] = useState(false);
 
   const exchange = useContext(ExchangeContext);
+  const token = useContext(TokenContext);
 
   const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
 
@@ -39,13 +42,24 @@ export const Swap: React.FC<Props> = () => {
     } else {
       //トレード後得られる量を取得し、表示
       if (!exchange.instance) return;
-      const predictGetAmount = await exchange.instance.getTokenAmount(toWei(inputAmount));
+
+      let predictGetAmount: ethers.BigNumber;
+      if (isEthInput) {
+        predictGetAmount = await exchange.instance.getTokenAmount(toWei(inputAmount));
+      } else {
+        predictGetAmount = await exchange.instance.getEthAmount(toWei(inputAmount));
+      }
+
       const predictGetAmountFormatted = parseFloat(ethers.utils.formatEther(predictGetAmount)).toFixed(3);
 
       console.log("predicted amount:" + predictGetAmountFormatted);
-      if (predictGetAmountFormatted) {
-        setOutputAmount(Number(predictGetAmountFormatted));
+
+      setOutputAmount(Number(predictGetAmountFormatted));
+
+      if (!isEthInput && inputAmount && Number(allowanceAmount) < inputAmount) {
+        setshowApprove(true);
       }
+
       setIsButtonDisabled(false);
       if (inputAmount > Number(ethBalance)) {
         setSwapMessage("Insufficient Balance");
@@ -59,12 +73,16 @@ export const Swap: React.FC<Props> = () => {
     e.preventDefault();
     if (!exchange.instance) throw Error("Exchange instance not ready");
     if (!outputAmount || !inputAmount) throw Error("no amount");
-    
+
     //Slippage
     const minOutputAmount = outputAmount * 0.995;
+    let result: ethers.ContractTransaction;
 
-    if (isEthInput) { }
-    const result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
+    if (isEthInput) {
+      result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
+    } else {
+      result = await exchange.instance.tokenToEthSwap(toWei(inputAmount), toWei(minOutputAmount));
+    }
     console.log("swap tx", result);
     const receipt = await result.wait();
     console.log("swap is done right way", receipt.events);
@@ -95,6 +113,8 @@ export const Swap: React.FC<Props> = () => {
         )}
 
         <div className="">
+          {showApprove && <ApproveButton approveAmount={inputAmount} />}
+
           <button
             type="button"
             onClick={(e) => orderSwap(e)}

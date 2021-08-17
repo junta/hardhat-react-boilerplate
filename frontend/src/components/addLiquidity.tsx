@@ -3,7 +3,8 @@ import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { ethers } from "ethers";
 import { TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
-import { useGetOnchainData, toWei } from "../helper";
+import { useGetOnchainData, toWei, useApproveToken } from "../helper";
+import ApproveButton from "../components/ApproveButton";
 
 interface Props {}
 
@@ -17,6 +18,7 @@ export const AddLiquidity: React.FC<Props> = (props) => {
   const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
   const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
+  //const approve = useApproveToken();
 
   const calcOutputAmount = async (inputAmount: number) => {
     setInputAmount(inputAmount);
@@ -62,15 +64,6 @@ export const AddLiquidity: React.FC<Props> = (props) => {
     console.log("add liq right way");
   };
 
-  const approveToken = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    if (!token.instance || !exchange.instance) throw Error("token instance not ready");
-    const result = await token.instance.approve(exchange.instance.address, toWei(Number(outputAmount)));
-    console.log("approve", result);
-    await result.wait();
-    console.log("approve right way");
-  };
-
   return (
     <div className="rounded-lg bg-gray-800 p-3 shadow w-600">
       <div className="grid grid-cols-1">
@@ -82,13 +75,7 @@ export const AddLiquidity: React.FC<Props> = (props) => {
           <SwapOutputForm isEth={false} outputAmount={outputAmount} />
         </div>
         <div className="">
-          <button
-            onClick={(e) => approveToken(e)}
-            className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700"
-            disabled={isButtonDisabled}
-          >
-            approve
-          </button>
+          <ApproveButton approveAmount={outputAmount} />
           <button
             onClick={(e) => addLiquidity(e)}
             className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700"

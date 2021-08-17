@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Menu } from "@headlessui/react";
-
 import ethIcon from "../eth_icon.png";
 import bitcoinIcon from "../bitcoin.png";
 import { SignerContext } from "./../hardhat/SymfoniContext";
-import { ethers } from "ethers";
+
 import { useGetOnchainData, toWei } from "../helper";
 
 interface Props {
@@ -14,7 +12,6 @@ interface Props {
 }
 
 const SwapForm: React.FC<Props> = (props) => {
-  const signer = useContext(SignerContext);
   const [inputAmount, setinputAmount] = useState<number>();
 
   const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
