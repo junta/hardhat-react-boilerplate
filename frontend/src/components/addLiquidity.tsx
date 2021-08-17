@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import SwapForm from "../components/SwapForm";
 import SwapOutputForm from "../components/SwapOutputForm";
 import { ethers } from "ethers";
-import { TokenContext, ExchangeContext } from "./../hardhat/SymfoniContext";
-import { useGetOnchainData, toWei, useApproveToken } from "../helper";
-import ApproveButton from "../components/ApproveButton";
+import { ExchangeContext, TokenContext } from "./../hardhat/SymfoniContext";
+import { useGetOnchainData, toWei } from "../helper";
 
 interface Props {}
 
@@ -13,12 +12,12 @@ export const AddLiquidity: React.FC<Props> = (props) => {
   const [outputAmount, setOutputAmount] = useState<number>();
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [swapMessage, setSwapMessage] = useState("Enter an amount");
+  const [liqMessage, setLiqMessage] = useState("Enter an amount");
+  const [needApprove, setNeedApprove] = useState(false);
 
-  const token = useContext(TokenContext);
   const exchange = useContext(ExchangeContext);
+  const token = useContext(TokenContext);
   const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
-  //const approve = useApproveToken();
 
   const calcOutputAmount = async (inputAmount: number) => {
     setInputAmount(inputAmount);
@@ -29,27 +28,32 @@ export const AddLiquidity: React.FC<Props> = (props) => {
     if (isNaN(inputAmount)) {
       setOutputAmount(0);
       setIsButtonDisabled(true);
-      setSwapMessage("Enter an amount");
+      setLiqMessage("Enter an amount");
     } else {
       if (!exchange.instance) return;
 
       const exchangeReserve = await exchange.instance.getReserve();
       console.log("exchange reserve" + exchangeReserve);
+      let outputAmount: number;
       if (Number(exchangeReserve) === 0) {
-        setOutputAmount(inputAmount * 2);
+        outputAmount = inputAmount * 2;
+        setOutputAmount(outputAmount);
       } else {
         const predictGetAmount = await exchange.instance.getTokenAmount(toWei(inputAmount));
         const predictGetAmountFormatted = parseFloat(ethers.utils.formatEther(predictGetAmount)).toFixed(3);
-        setOutputAmount(Number(predictGetAmountFormatted));
+        outputAmount = Number(predictGetAmountFormatted);
+        setOutputAmount(outputAmount);
       }
 
       setIsButtonDisabled(false);
+
       if (inputAmount > Number(ethBalance)) {
-        setSwapMessage("Insufficient Balance");
-      } else if (inputAmount > Number(allowanceAmount) || !allowanceAmount) {
-        setSwapMessage("Approve first");
+        setLiqMessage("Insufficient Balance");
+      } else if (!outputAmount || outputAmount > Number(allowanceAmount) || !allowanceAmount) {
+        setLiqMessage("Approve first");
+        setNeedApprove(true);
       } else {
-        setSwapMessage("Add Liquidity");
+        setLiqMessage("Add Liquidity");
       }
     }
   };
@@ -58,14 +62,25 @@ export const AddLiquidity: React.FC<Props> = (props) => {
     e.preventDefault();
     if (!exchange.instance) throw Error("Exchange instance not ready");
     if (!outputAmount || !inputAmount) throw Error("no amount");
-    const result = await exchange.instance.addLiquidity(toWei(outputAmount), { value: toWei(inputAmount) });
-    console.log("addLiquidity tx", result);
-    await result.wait();
-    console.log("add liq right way");
+
+    if (needApprove) {
+      if (!token.instance || !exchange.instance) throw Error("token instance not ready");
+      const result = await token.instance.approve(exchange.instance.address, toWei(Number(outputAmount)));
+      console.log("approve", result);
+      await result.wait();
+      console.log("approve right way");
+      setLiqMessage("Add Liquidity");
+      setNeedApprove(false);
+    } else {
+      const result = await exchange.instance.addLiquidity(toWei(outputAmount), { value: toWei(inputAmount) });
+      console.log("addLiquidity tx", result);
+      await result.wait();
+      console.log("add liq right way");
+    }
   };
 
   return (
-    <div className="rounded-lg bg-gray-800 p-3 shadow w-600">
+    <div className="rounded-lg bg-gray-900 p-3 shadow w-600">
       <div className="grid grid-cols-1">
         <div className="flex justify-between m-2">
           <div className=" text-lg text-left">Add Liquidity</div>
@@ -75,13 +90,12 @@ export const AddLiquidity: React.FC<Props> = (props) => {
           <SwapOutputForm isEth={false} outputAmount={outputAmount} />
         </div>
         <div className="">
-          <ApproveButton approveAmount={outputAmount} />
           <button
             onClick={(e) => addLiquidity(e)}
             className="w-full h-14 bg-blue-500  text-white text-lg py-2 px-4 rounded-full mt-7 tracking-wider disabled:opacity-50 hover:bg-blue-700"
             disabled={isButtonDisabled}
           >
-            {swapMessage}
+            {liqMessage}
           </button>
         </div>
       </div>

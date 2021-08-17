@@ -4,6 +4,7 @@ import { toWei } from "../helper";
 
 interface Props {
   approveAmount: number | undefined;
+  setSwapMessage: (value: React.SetStateAction<string>) => void;
 }
 
 const ApproveButton: React.FC<Props> = (props) => {
@@ -18,6 +19,7 @@ const ApproveButton: React.FC<Props> = (props) => {
     console.log("approve", result);
     await result.wait();
     console.log("approve right way");
+    props.setSwapMessage("Add Liquidity");
   };
 
   return (

@@ -4,13 +4,10 @@
 import { providers, Signer, ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import Web3Modal, { IProviderOptions } from "web3modal";
-import ExchangeDeployment from "./deployments/localhost/Exchange.json";
 import { Exchange } from "./typechain/Exchange";
 import { Exchange__factory } from "./typechain/factories/Exchange__factory";
-import GreeterDeployment from "./deployments/localhost/Greeter.json";
 import { Greeter } from "./typechain/Greeter";
 import { Greeter__factory } from "./typechain/factories/Greeter__factory";
-import TokenDeployment from "./deployments/localhost/Token.json";
 import { Token } from "./typechain/Token";
 import { Token__factory } from "./typechain/factories/Token__factory";
 import { ERC20 } from "./typechain/ERC20";
@@ -204,7 +201,7 @@ export const Symfoni: React.FC<SymfoniProps> = ({
 
     const getExchange = (_provider: providers.Provider, _signer?: Signer) => {
 
-        const contractAddress = ExchangeDeployment.receipt.contractAddress
+        const contractAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
         const instance = _signer ? Exchange__factory.connect(contractAddress, _signer) : Exchange__factory.connect(contractAddress, _provider)
         const contract: SymfoniExchange = {
             instance: instance,
@@ -215,7 +212,7 @@ export const Symfoni: React.FC<SymfoniProps> = ({
         ;
     const getGreeter = (_provider: providers.Provider, _signer?: Signer) => {
 
-        const contractAddress = GreeterDeployment.receipt.contractAddress
+        const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         const instance = _signer ? Greeter__factory.connect(contractAddress, _signer) : Greeter__factory.connect(contractAddress, _provider)
         const contract: SymfoniGreeter = {
             instance: instance,
@@ -226,7 +223,7 @@ export const Symfoni: React.FC<SymfoniProps> = ({
         ;
     const getToken = (_provider: providers.Provider, _signer?: Signer) => {
 
-        const contractAddress = TokenDeployment.receipt.contractAddress
+        const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
         const instance = _signer ? Token__factory.connect(contractAddress, _signer) : Token__factory.connect(contractAddress, _provider)
         const contract: SymfoniToken = {
             instance: instance,

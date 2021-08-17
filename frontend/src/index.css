@@ -29,5 +29,9 @@ input[type="number"] {
 }
 
 .nav-button {
-  @apply text-xl inline-block rounded py-1 px-3 bg-gray-900;
+  @apply text-xl inline-block py-1 px-3;
+}
+
+.base-color {
+  background-color: #f4f5f7;
 }

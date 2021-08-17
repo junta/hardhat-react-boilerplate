@@ -22,7 +22,7 @@ export const RemoveLiquidity: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className="rounded-lg bg-gray-800 p-3 shadow w-600 my-6">
+    <div className="rounded-lg bg-gray-900 p-3 shadow w-600 my-6">
       <div className=" text-lg text-left">Remove Liquidity</div>
       <div className="flex justify-between m-2 text-lg">
         <p>ETH/JTK</p>

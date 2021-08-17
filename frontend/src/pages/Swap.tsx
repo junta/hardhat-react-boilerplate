@@ -5,7 +5,6 @@ import { CogIcon, ArrowCircleDownIcon } from "@heroicons/react/outline";
 import { ethers } from "ethers";
 import { ExchangeContext, TokenContext } from "./../hardhat/SymfoniContext";
 import { useGetOnchainData, toWei } from "../helper";
-import ApproveButton from "../components/ApproveButton";
 
 interface Props {}
 
@@ -16,12 +15,28 @@ export const Swap: React.FC<Props> = () => {
   const [isInputReset, setIsInputReset] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [swapMessage, setSwapMessage] = useState("Enter an amount");
-  const [showApprove, setshowApprove] = useState(false);
+  const [needApprove, setNeedApprove] = useState(false);
 
   const exchange = useContext(ExchangeContext);
   const token = useContext(TokenContext);
 
   const [ethBalance, tokenSymbol, tokenBalance, allowanceAmount] = useGetOnchainData();
+
+  useEffect(() => {
+    const doAsync = async () => {
+      if (!exchange.instance) return;
+
+      const exchangeReserve = await exchange.instance.getReserve();
+
+      const exchangeReserveFormatted = parseFloat(ethers.utils.formatEther(exchangeReserve));
+      console.log(exchangeReserveFormatted);
+
+      if (exchangeReserveFormatted === 0) {
+        setSwapMessage("No Liquidity");
+      }
+    };
+    doAsync();
+  }, [exchange.instance]);
 
   const changeFormPos = () => {
     setIsEthInput(!isEthInput);
@@ -56,13 +71,12 @@ export const Swap: React.FC<Props> = () => {
 
       setOutputAmount(Number(predictGetAmountFormatted));
 
-      if (!isEthInput && inputAmount && Number(allowanceAmount) < inputAmount) {
-        setshowApprove(true);
-      }
-
       setIsButtonDisabled(false);
       if (inputAmount > Number(ethBalance)) {
         setSwapMessage("Insufficient Balance");
+      } else if (!isEthInput && inputAmount && Number(allowanceAmount) < inputAmount) {
+        setNeedApprove(true);
+        setSwapMessage("Approve first");
       } else {
         setSwapMessage("Swap");
       }
@@ -74,22 +88,32 @@ export const Swap: React.FC<Props> = () => {
     if (!exchange.instance) throw Error("Exchange instance not ready");
     if (!outputAmount || !inputAmount) throw Error("no amount");
 
-    //Slippage
-    const minOutputAmount = outputAmount * 0.995;
-    let result: ethers.ContractTransaction;
-
-    if (isEthInput) {
-      result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
+    if (needApprove) {
+      if (!token.instance || !exchange.instance) throw Error("token instance not ready");
+      const result = await token.instance.approve(exchange.instance.address, toWei(Number(inputAmount)));
+      console.log("approve", result);
+      await result.wait();
+      console.log("approve right way");
+      setSwapMessage("Swap");
+      setNeedApprove(false);
     } else {
-      result = await exchange.instance.tokenToEthSwap(toWei(inputAmount), toWei(minOutputAmount));
+      //slippage
+      const minOutputAmount = outputAmount * 0.995;
+      let result: ethers.ContractTransaction;
+
+      if (isEthInput) {
+        result = await exchange.instance.ethToTokenSwap(toWei(minOutputAmount), { value: toWei(inputAmount) });
+      } else {
+        result = await exchange.instance.tokenToEthSwap(toWei(inputAmount), toWei(minOutputAmount));
+      }
+      console.log("swap tx", result);
+      const receipt = await result.wait();
+      console.log("swap is done right way", receipt.events);
     }
-    console.log("swap tx", result);
-    const receipt = await result.wait();
-    console.log("swap is done right way", receipt.events);
   };
 
   return (
-    <div className="rounded-lg bg-gray-800 p-3 shadow w-600">
+    <div className="rounded-lg bg-gray-900 p-3 shadow w-600">
       <div className="grid grid-cols-1">
         <div className="flex justify-between m-2">
           <div className=" text-lg text-left">Swap</div>
@@ -113,8 +137,6 @@ export const Swap: React.FC<Props> = () => {
         )}
 
         <div className="">
-          {showApprove && <ApproveButton approveAmount={inputAmount} />}
-
           <button
             type="button"
             onClick={(e) => orderSwap(e)}
