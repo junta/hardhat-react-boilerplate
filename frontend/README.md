@@ -1,3 +1,17 @@
+This is sample application of Uniswap V1 contract and frontend.
+
+### Features:
+
+- Add liquidity
+
+- Remove liquidity
+
+- Swap Eth to ERC20 token
+
+- Swap ERC20 token to Eth
+
+---
+
 # Get started
 
 1. Clone the repo and cd into it `git clone https://github.com/symfoni/hardhat-react-boilerplate.git MyProject && cd MyProject`
